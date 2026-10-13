@@ -94,6 +94,17 @@ export default function HomePage() {
             </details>
           ))}
         </section>
+
+        <p className="text-center text-xs text-gray-400">
+          <a
+            href="https://github.com/CodeRafay/encrypted-private-chat"
+            className="underline hover:text-gray-600"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open source on GitHub
+          </a>
+        </p>
       </div>
     </main>
   );
