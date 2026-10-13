@@ -2,7 +2,6 @@ import type { Env } from './types';
 
 const MAX_PEERS = 2;
 const MAX_MESSAGE_BYTES = 16_384;
-const CLOSE_ROOM_FULL = 4000;
 const CLOSE_REPLACED = 4005;
 
 // Relays end-to-end encrypted messages between at most 2 sockets.
@@ -28,9 +27,10 @@ export class Room implements DurableObject {
     }
 
     if (this.openSockets().length >= MAX_PEERS) {
+      // Untagged, so it never counts as a peer. The client closes it on 'room-full';
+      // closing it here, before the 101 is returned, resets the connection in production.
       this.ctx.acceptWebSocket(server);
       server.send(JSON.stringify({ type: 'room-full' }));
-      server.close(CLOSE_ROOM_FULL, 'Room full');
       return new Response(null, { status: 101, webSocket: client });
     }
 

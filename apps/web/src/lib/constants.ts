@@ -13,6 +13,5 @@ export const LIMITS = {
 export const ROOM_CODE_REGEX = /^[A-Z0-9]{6,10}$/;
 
 export const WS_CLOSE_CODES = {
-  ROOM_FULL: 4000,
   REPLACED: 4005,
 } as const;

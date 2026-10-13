@@ -76,6 +76,8 @@ export function useRoom(code: string): RoomHookReturn {
           retry = 0;
           setConnectionState(msg.peers >= LIMITS.MAX_ROOM_PEERS ? 'CONNECTED' : 'WAITING');
         } else if (msg.type === 'room-full') {
+          stopped = true;
+          ws.close(1000, 'Room full');
           setConnectionState('ROOM_FULL');
         } else if (msg.type === 'msg' && keyRef.current) {
           const payload = await decrypt(keyRef.current, msg);
@@ -87,10 +89,6 @@ export function useRoom(code: string): RoomHookReturn {
 
       ws.onclose = (event: CloseEvent) => {
         if (stopped) {
-          return;
-        }
-        if (event.code === WS_CLOSE_CODES.ROOM_FULL) {
-          setConnectionState('ROOM_FULL');
           return;
         }
         if (event.code === WS_CLOSE_CODES.REPLACED) {
