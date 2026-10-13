@@ -1,6 +1,8 @@
-# EphemeralChat
+# EphemeralChat — Encrypted Private Chat
 
-EphemeralChat is a privacy-first, real-time 1-to-1 chat app built so conversations stay between peers. Messages are end-to-end encrypted in the browser and relayed through a tiny Cloudflare Worker that only ever sees ciphertext.
+**Live: [encrypted-private-chat.vercel.app](https://encrypted-private-chat.vercel.app)**
+
+EphemeralChat is a free, open-source, end-to-end encrypted chat that runs in the browser with no sign-up. It is a privacy-first, real-time 1-to-1 chat app built so conversations stay between peers. Messages are end-to-end encrypted in the browser and relayed through a tiny Cloudflare Worker that only ever sees ciphertext.
 
 There is no database and no message persistence. Because it uses a relay instead of peer-to-peer, it works on any network that can load a website, including corporate Wi-Fi and mobile data. That makes the app a good fit for private, temporary communication where you do not want chats stored, indexed, or replayed later.
 

@@ -1,3 +1,5 @@
+export const SITE_URL = 'https://encrypted-private-chat.vercel.app';
+
 export const TIMEOUTS = {
   WS_RECONNECT_DELAYS_MS: [1_000, 2_000, 4_000, 8_000] as const,
   COPY_FEEDBACK_MS: 2_000,
