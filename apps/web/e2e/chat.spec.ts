@@ -3,8 +3,8 @@ import { expect, test } from '@playwright/test';
 test('create room and wait', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Create New Room' }).click();
-  await expect(page).toHaveURL(/\/room\/[A-Z0-9]{8}\/?$/);
-  await expect(page.getByText('Waiting for peer')).toBeVisible();
+  await expect(page).toHaveURL(/\/room\/[A-Z0-9]{8}#[\w-]{43}$/);
+  await expect(page.getByText('Waiting for peer').first()).toBeVisible();
 });
 
 test('full connection and message exchange', async ({ browser }) => {
@@ -63,4 +63,31 @@ test('room full rejection', async ({ browser }) => {
   await contextA.close();
   await contextB.close();
   await contextC.close();
+});
+
+test('refresh rejoins the same room', async ({ browser }) => {
+  const contextA = await browser.newContext();
+  const contextB = await browser.newContext();
+  const pageA = await contextA.newPage();
+  const pageB = await contextB.newPage();
+
+  await pageA.goto('/');
+  await pageA.getByRole('button', { name: 'Create New Room' }).click();
+  await pageA.waitForURL(/\/room\/[A-Z0-9]{8}/);
+  await pageB.goto(pageA.url());
+  await expect(pageB.getByText('Connected')).toBeVisible({ timeout: 15_000 });
+
+  await pageA.reload();
+  await expect(pageA.getByText('Connected')).toBeVisible({ timeout: 15_000 });
+  await pageA.getByLabel('Message input').fill('after refresh');
+  await pageA.getByLabel('Send message').click();
+  await expect(pageB.getByText('after refresh')).toBeVisible();
+
+  await contextA.close();
+  await contextB.close();
+});
+
+test('link without key is rejected', async ({ page }) => {
+  await page.goto('/room/ABCDEFGH');
+  await expect(page.getByText(/incomplete link/i)).toBeVisible();
 });

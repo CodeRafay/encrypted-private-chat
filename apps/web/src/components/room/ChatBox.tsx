@@ -14,8 +14,7 @@ interface ChatBoxProps {
 }
 
 export function ChatBox({ code }: ChatBoxProps) {
-  const { messages, connectionState, roomInfo, sendMessage, debug } = useRoom(code);
-  const showDebug = process.env.NODE_ENV !== 'production';
+  const { messages, connectionState, roomInfo, sendMessage } = useRoom(code);
   const isConnected = connectionState === 'CONNECTED';
   const showOverlay = !isConnected && !isTerminalError(connectionState);
 
@@ -52,14 +51,14 @@ export function ChatBox({ code }: ChatBoxProps) {
     );
   }
 
-  if (connectionState === 'TIMED_OUT') {
+  if (connectionState === 'MISSING_KEY') {
     return (
       <ErrorPanel
-        title="Room Expired"
-        description="No one joined in 10 minutes."
+        title="Incomplete Link"
+        description="This link is missing its encryption key. Ask for the full room link (the part after # is required)."
         actions={
           <Link href="/">
-            <Button variant="primary">Create New Room</Button>
+            <Button variant="secondary">Go Home</Button>
           </Link>
         }
       />
@@ -70,7 +69,7 @@ export function ChatBox({ code }: ChatBoxProps) {
     return (
       <ErrorPanel
         title="Connection Failed"
-        description="This sometimes happens on corporate networks."
+        description="This room was opened in another tab. Close one of them and reload."
         actions={
           <Link href="/">
             <Button variant="secondary">Go Home</Button>
@@ -85,16 +84,6 @@ export function ChatBox({ code }: ChatBoxProps) {
       <RoomHeader
         code={roomInfo.code}
         connectionState={connectionState}
-        debugInfo={
-          showDebug && debug
-            ? {
-                role: roomInfo.role,
-                peerId: roomInfo.peerId,
-                signalingStatus: debug.signalingStatus,
-                wsReadyState: debug.wsReadyState,
-              }
-            : undefined
-        }
       />
       <MessageList messages={messages} />
       <MessageInput onSend={sendMessage} disabled={!isConnected} />
@@ -108,7 +97,7 @@ export function ChatBox({ code }: ChatBoxProps) {
 }
 
 function isTerminalError(state: string): boolean {
-  return state === 'ROOM_NOT_FOUND' || state === 'ROOM_FULL' || state === 'TIMED_OUT' || state === 'FAILED';
+  return state === 'ROOM_NOT_FOUND' || state === 'ROOM_FULL' || state === 'MISSING_KEY' || state === 'FAILED';
 }
 
 function ErrorPanel({

@@ -1,18 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { newKey } from '@/lib/crypto';
 import { generateRoomCode } from '@/lib/roomId';
 
 export function CreateRoomButton() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleCreate = () => {
     setLoading(true);
-    const code = generateRoomCode();
-    router.push(`/room/${code}`);
+    // Full navigation so the room page mounts with the #key already in location.hash.
+    window.location.assign(`/room/${generateRoomCode()}#${newKey()}`);
   };
 
   return (

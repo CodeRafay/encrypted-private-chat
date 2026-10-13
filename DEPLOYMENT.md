@@ -12,20 +12,13 @@ The fastest path is to deploy the signaling worker first, then point the web app
 - A GitHub repo connected to your deployments
 - A Vercel account
 - A Cloudflare account
-- Node.js 20+ and `pnpm` if you want to test locally before deploying
+- Node.js 22+ and `pnpm` if you want to test locally before deploying
 
 ## One-time setup
 
-### 1) Create the Cloudflare KV namespace
+### 1) Cloudflare account
 
-The signaling worker needs a KV namespace for rate limiting.
-
-1. Open the Cloudflare dashboard.
-2. Create a KV namespace for the signaling worker.
-3. Copy the namespace ID into [apps/signaling/wrangler.toml](apps/signaling/wrangler.toml) in place of `REPLACE_WITH_YOUR_KV_NAMESPACE_ID`.
-4. If you are on Cloudflare's free plan, keep the Durable Object migration in sqlite format (`new_sqlite_classes`) so deploys are accepted.
-
-You only need to do this once unless you recreate the namespace.
+Any free Cloudflare account works, and no KV or other resources are needed. Keep the Durable Object migration in sqlite format (`new_sqlite_classes`) so deploys are accepted on the free plan.
 
 ### 2) Set the production signaling URL
 
@@ -92,7 +85,6 @@ Before sharing the app publicly, confirm these items:
 
 - The Cloudflare worker deploys successfully and returns a healthy response at its URL.
 - `NEXT_PUBLIC_SIGNALING_URL` in Vercel points to the production worker URL, not localhost.
-- The worker KV namespace ID in [apps/signaling/wrangler.toml](apps/signaling/wrangler.toml) is the real production ID.
 - The web app opens and can create a room.
 - A second browser tab can join the same room and connect.
 
@@ -121,9 +113,8 @@ Then:
 
 ### Rooms fail to join or connect
 
-- Confirm the worker has the correct KV namespace ID.
 - Check Cloudflare Worker logs for errors.
-- Make sure you are opening the same room URL in both tabs.
+- Make sure you open the full room URL, including the `#key` part, in both browsers.
 
 ### Local dev works but production does not
 
@@ -147,12 +138,12 @@ Deployment steps:
 
 1. Create a GitHub repo and push your code.
 2. Create a Cloudflare account.
-3. In Cloudflare, create a KV namespace for the signaling worker.
-4. Put the KV namespace ID into wrangler.toml.
+3. Log in with `pnpm --filter signaling exec wrangler login`.
+4. If deploying from GitHub Actions, set the `CF_API_TOKEN` and `CF_ACCOUNT_ID` repo secrets for that account.
 5. Deploy the signaling worker with pnpm --filter signaling run deploy.
 6. Copy the deployed worker URL, for example wss://your-worker.your-subdomain.workers.dev.
 7. Create a Vercel project from the same GitHub repo.
-8. Set the root directory to web.
+8. Set the root directory to apps/web.
 9. Add NEXT_PUBLIC_SIGNALING_URL in Vercel and point it to the production worker URL.
 10. Deploy the web app.
 

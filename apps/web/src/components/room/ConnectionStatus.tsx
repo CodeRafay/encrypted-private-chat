@@ -12,13 +12,11 @@ const stateConfig: Partial<
     label: 'Waiting for peer...',
     className: 'text-blue-600 motion-safe:animate-pulse',
   },
-  CONNECTING: { label: 'Connecting...', className: 'text-yellow-600 motion-safe:animate-pulse' },
   CONNECTED: { label: '● Connected', className: 'text-green-600' },
   RECONNECTING: {
     label: 'Reconnecting...',
     className: 'text-orange-600 motion-safe:animate-pulse',
   },
-  DISCONNECTED: { label: '● Disconnected', className: 'text-red-600' },
   FAILED: { label: '● Connection failed', className: 'text-red-600' },
 };
 

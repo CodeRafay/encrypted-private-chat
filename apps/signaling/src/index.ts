@@ -40,25 +40,7 @@ export default {
         return new Response('Invalid room code format', { status: 400 });
       }
 
-      const rateLimitDisabled = env.DISABLE_RATE_LIMIT === 'true';
-
-      if (!rateLimitDisabled) {
-        try {
-          const clientIp = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-          const rlKey = `rl:${clientIp}`;
-          const current = parseInt((await env.RATE_LIMIT_KV.get(rlKey)) ?? '0', 10);
-          const max = parseInt(env.RATE_LIMIT_MAX_CONNECTIONS, 10);
-          if (current >= max) {
-            return new Response('Rate limited', { status: 429 });
-          }
-          await env.RATE_LIMIT_KV.put(rlKey, String(current + 1), {
-            expirationTtl: 60,
-          });
-        } catch {
-          // KV unavailable — continue without rate limiting
-        }
-      }
-
+      // ponytail: no rate limiting; rooms cap at 2 peers. Add the Workers rate-limit binding if abused.
       const id = env.ROOMS.idFromName(code);
       const stub = env.ROOMS.get(id);
       return stub.fetch(request);

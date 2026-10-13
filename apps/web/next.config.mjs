@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // WebRTC + WebSocket rooms break when effects mount twice in dev.
-  reactStrictMode: false,
+  reactStrictMode: true,
   transpilePackages: ['nanoid'],
   async headers() {
     return [
@@ -19,7 +18,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_SIGNALING_URL ?? ''} stun:stun.l.google.com:19302 stun:stun1.l.google.com:19302`,
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_SIGNALING_URL ?? ''}`,
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data:",

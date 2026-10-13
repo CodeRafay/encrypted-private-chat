@@ -1,22 +1,15 @@
 export type ConnectionState =
-  | 'IDLE'
   | 'SIGNALING'
   | 'WAITING'
-  | 'CONNECTING'
   | 'CONNECTED'
   | 'RECONNECTING'
-  | 'DISCONNECTED'
   | 'FAILED'
   | 'ROOM_FULL'
   | 'ROOM_NOT_FOUND'
-  | 'TIMED_OUT';
-
-export type PeerRole = 'host' | 'guest';
+  | 'MISSING_KEY';
 
 export interface RoomInfo {
   code: string;
-  role: PeerRole | null;
-  peerId: string | null;
 }
 
 export interface RoomHookReturn {
@@ -25,8 +18,4 @@ export interface RoomHookReturn {
   roomInfo: RoomInfo;
   sendMessage: (text: string) => void;
   shareUrl: string;
-  debug: {
-    signalingStatus: 'connecting' | 'open' | 'closed' | 'error';
-    wsReadyState: number | null;
-  } | null;
 }

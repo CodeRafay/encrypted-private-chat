@@ -1,8 +1,8 @@
 # EphemeralChat
 
-EphemeralChat is a privacy-first, real-time 1-to-1 chat app built so conversations stay between peers. Messages travel directly over WebRTC DataChannels, and the server is used only for short-lived signaling during room setup.
+EphemeralChat is a privacy-first, real-time 1-to-1 chat app built so conversations stay between peers. Messages are end-to-end encrypted in the browser and relayed through a tiny Cloudflare Worker that only ever sees ciphertext.
 
-There is no database, no message persistence, and no third-party chat backend relaying your conversation. That makes the app a good fit for private, temporary communication where you do not want chats stored, indexed, or replayed later.
+There is no database and no message persistence. Because it uses a relay instead of peer-to-peer, it works on any network that can load a website, including corporate Wi-Fi and mobile data. That makes the app a good fit for private, temporary communication where you do not want chats stored, indexed, or replayed later.
 
 ## Why this exists
 
@@ -10,39 +10,39 @@ Most chat products optimize for retention, analytics, and long-term storage. Eph
 
 ## Key features
 
-- Peer-to-peer chat over WebRTC DataChannels
-- Zero message persistence
-- No database for chat content
-- Short-lived signaling only for room negotiation
+- End-to-end encrypted (AES-GCM, key in the link's `#fragment`)
+- Works on every network, with no STUN/TURN needed
+- Zero message persistence, no database
+- Max 2 people per room
 - One-click room creation and shareable room links
 - Minimal UI focused on fast access and clarity
 - Built with TypeScript for safer, maintainable code
 
 ## Privacy and security model
 
-- Messages are not stored on a central server.
-- The signaling server only exchanges SDP and ICE information needed to connect peers.
-- Room traffic is not routed through a message relay once the data channel is established.
-- The app avoids unnecessary third-party processing of chat content.
+- Creating a room generates a random 256-bit key and puts it in the link after `#`. Browsers never send the `#fragment` to any server.
+- Messages are encrypted with AES-GCM before they leave the browser. The relay forwards ciphertext and stores nothing.
+- The relay sees: the room code, when messages are sent, and their approximate size. It never sees the key or the text.
+- Anyone who has the full link can join, so share it only with the person you're chatting with. A room holds at most 2 people.
 
 ## Tech stack
 
 - Frontend: Next.js 14, React 18, Tailwind CSS 3
-- Signaling: Cloudflare Workers + Durable Objects
-- Transport: WebRTC with STUN-only ICE in V1
+- Relay: Cloudflare Workers + Durable Objects (free plan)
+- Transport: WebSocket, end-to-end encrypted with WebCrypto
 
 ## Repository structure
 
 - `apps/web` - Next.js frontend
-- `apps/signaling` - Cloudflare Worker signaling service
+- `apps/signaling` - Cloudflare Worker that relays encrypted messages
 - `DEPLOYMENT.md` - production deployment guide
 
 ## Getting started locally
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm 8+
+- Node.js 22+
+- pnpm 10+
 
 ### Install dependencies
 
@@ -77,7 +77,7 @@ Then open the local app, create a room, copy the link, and open it in a second t
 
 | Variable                    | App | Description                                                                                                                     |
 | --------------------------- | --- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SIGNALING_URL` | web | WebSocket base URL for signaling, such as `ws://localhost:8787` in development or `wss://your-worker.workers.dev` in production |
+| `NEXT_PUBLIC_SIGNALING_URL` | web | WebSocket base URL of the relay worker, such as `ws://localhost:8787` in development or `wss://your-worker.workers.dev` in production |
 
 ## Scripts
 
@@ -98,19 +98,17 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the full production deployment guide.
 
 ```mermaid
 flowchart LR
-        A[Browser A] <-- WebRTC DataChannel --> B[Browser B]
-        A <-- SDP/ICE signaling --> S[Cloudflare Worker]
-        B <-- SDP/ICE signaling --> S
-        S --- D[(Durable Object per room)]
+        A[Browser A] <-- encrypted WebSocket --> S[Cloudflare Worker]
+        B[Browser B] <-- encrypted WebSocket --> S
+        S --- D[(Durable Object per room, max 2 sockets)]
 ```
 
-After the DataChannel opens, message bytes no longer pass through the server.
+The encryption key stays in the link's `#fragment`, so the relay only handles ciphertext.
 
 ## Known limitations
 
-- No TURN server, so some restrictive networks may fail to connect
-- No reconnect after page refresh
-- STUN-only ICE in V1
+- Messages sent while the other person is offline are not delivered (nothing is stored).
+- Chat history is lost on page refresh. Refreshing rejoins the same room.
 
 ## License
 
