@@ -30,7 +30,7 @@ export default function HomePage() {
         </section>
 
         <p className="text-center text-xs text-gray-400">
-          Messages are never stored. No account needed. Powered by WebRTC.
+          Messages are never stored. No account needed. End-to-end encrypted.
         </p>
       </div>
     </main>

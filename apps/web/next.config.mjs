@@ -1,3 +1,6 @@
+// Accept https:// or wss:// in the env var; the browser connects over ws(s)://.
+const signalingUrl = (process.env.NEXT_PUBLIC_SIGNALING_URL ?? '').replace(/^http/, 'ws');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -18,7 +21,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_SIGNALING_URL ?? ''}`,
+              `connect-src 'self' ${signalingUrl}`,
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data:",

@@ -33,7 +33,7 @@ function tabId(): string {
 }
 
 function roomSocketUrl(code: string): string {
-  const base = (process.env.NEXT_PUBLIC_SIGNALING_URL ?? 'ws://localhost:8787').replace(/\/$/, '');
+  const base = (process.env.NEXT_PUBLIC_SIGNALING_URL ?? 'ws://localhost:8787').replace(/\/$/, '').replace(/^http/, 'ws');
   return `${base}/ws/${code}?cid=${tabId()}`;
 }
 
